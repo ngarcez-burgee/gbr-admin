@@ -212,7 +212,7 @@
       <a href="#section-table" onclick="window.scrollTo({top:document.getElementById('section-table').offsetTop-90,behavior:'smooth'});" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✏ Edit / Delete</a>
       <a href="#section-csv" onclick="document.getElementById('section-csv').querySelector('.section-body').classList.remove('hidden');document.getElementById('section-csv').querySelector('h3').classList.remove('collapsed');" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">📂 CSV Upload</a>
     </div>
-    <div class="header-actions">
+    <div class="header-actions" style="display:flex;align-items:center;gap:12px;"><span id="table-msg" class="msg" style="font-size:0.85rem;"></span>
       <a href="index.html" class="btn btn-navy">← Back</a>
       <button class="btn btn-accent" onclick="exportAll()">⬇ Export &amp; Download</button>
     </div>
