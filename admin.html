@@ -499,8 +499,7 @@ async function ghGetFile(path) {
   const r = await fetch(url, { headers: ghHeaders() });
   if (!r.ok) throw new Error(`GitHub GET failed: ${path} (${r.status})`);
   const data = await r.json();
-  return { content: atob(data.content.replace(/
-/g,"")), sha: data.sha };
+  return { content: atob(data.content.replace(/\n/g,"")), sha: data.sha };
 }
 
 async function ghPutFile(path, content, sha, message) {
