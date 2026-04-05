@@ -888,7 +888,7 @@ function collectNewTags() {
   newTags.tag_notes = document.getElementById("new-tag-notes")?.value.trim() || "";
 }
 
-function addClub() {
+async function addClub() {
   const name = document.getElementById("new-name").value.trim();
   if (!name) { showMsg("add-msg","Club name is required.","err"); return; }
   collectNewTags();
