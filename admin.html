@@ -214,7 +214,7 @@
     </div>
     <div class="header-actions" style="display:flex;align-items:center;gap:12px;"><span id="table-msg" class="msg" style="font-size:0.85rem;"></span>
       <a href="index.html" class="btn btn-navy">← Back</a>
-      <button class="btn btn-accent" onclick="exportAll()">⬇ Export &amp; Download</button>
+      <button class="btn btn-accent" onclick="exportXLSX()">📋 Create Directory</button>
     </div>
   </div>
 </header>
@@ -381,12 +381,6 @@
         </tbody>
       </table>
     </div>
-  </div>
-
-  <div style="display:none"></div>
-  <div class="export-bar">
-    <p>When done, export all three files and upload to make changes <strong>live on burgeeregister.org</strong></p>
-    <button class="btn btn-accent" onclick="exportAll()">⬇ Export All (3 files)</button>
   </div>
 
 </main>
@@ -1155,6 +1149,7 @@ function downloadJSON(data,filename) {
 }
 
 function exportXLSX(ts) {
+  if (!ts) ts = new Date().toISOString().replace("T","_").replace(/:/g,"-").substring(0,16);
   const sorted = [...clubs].sort((a,b)=>(a.name||"").localeCompare(b.name||""));
   const noWebsite  = sorted.filter(c=>!c.website).length;
   const withCity   = sorted.filter(c=>c.city).length;
