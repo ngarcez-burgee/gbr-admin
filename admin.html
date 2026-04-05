@@ -63,7 +63,7 @@
     .stat-pill .l{font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
 
     /* SECTIONS */
-    .section{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:32px;}
+    .section{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:32px;scroll-margin-top:90px;}
     .section h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
     .section h3::after{content:' ▼';font-size:0.7rem;color:var(--muted);margin-left:auto;}
     .section h3.collapsed::after{content:' ▶';}
@@ -209,8 +209,8 @@
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin:0 24px;">
       <a href="#section-add" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">➕ Add Club</a>
-      <a href="#section-table" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✏ Edit / Delete</a>
-      <a href="#section-csv" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">📂 CSV Upload</a>
+      <a href="#section-table" onclick="window.scrollTo({top:document.getElementById('section-table').offsetTop-90,behavior:'smooth'});" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✏ Edit / Delete</a>
+      <a href="#section-csv" onclick="document.getElementById('section-csv').querySelector('.section-body').classList.remove('hidden');document.getElementById('section-csv').querySelector('h3').classList.remove('collapsed');" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">📂 CSV Upload</a>
     </div>
     <div class="header-actions">
       <a href="index.html" class="btn btn-navy">← Back</a>
