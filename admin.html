@@ -996,6 +996,7 @@ function collectEditTags() {
 async function saveEdit() {
   collectEditTags();
   const idx     = parseInt(document.getElementById("edit-index").value);
+  showMsg("table-msg", "⏳ Saving to GitHub...", "ok");
   const imgFile = document.getElementById("edit-image").value.trim();
   const country = document.getElementById("edit-country").value.trim();
   const oldSlug = clubs[idx].slug;
