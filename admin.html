@@ -996,7 +996,7 @@ function collectEditTags() {
 async function saveEdit() {
   collectEditTags();
   const idx     = parseInt(document.getElementById("edit-index").value);
-  showMsg("table-msg", "⏳ Saving to GitHub...", "ok");
+  showMsg("table-msg", "⏳ Saving to GitHub...", "ok", false);
   const imgFile = document.getElementById("edit-image").value.trim();
   const country = document.getElementById("edit-country").value.trim();
   const oldSlug = clubs[idx].slug;
@@ -1193,7 +1193,7 @@ function normalizeRegion(region, country) {
 }
 
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
-function showMsg(id,text,type){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;setTimeout(()=>{el.textContent="";},5000);}
+function showMsg(id,text,type,autoClear=true){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;if(autoClear)setTimeout(()=>{el.textContent="";},5000);}
 
 function toggleHero(btn) {
   const body = document.getElementById("hero-body");
