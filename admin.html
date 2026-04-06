@@ -911,7 +911,7 @@ async function addClub() {
 
   // Push to GitHub
   const newClub = clubs[clubs.length - 1];
-  const addPath = `clubs/${newClub.slug}.json`;
+  const addPath = `burgees_data/clubs/${newClub.slug}.json`;
   try {
     await ghPutFile(addPath, JSON.stringify(newClub, null, 2), null, `Add ${newClub.name}`);
     showMsg("add-msg",`✓ "${name}" added and saved to GitHub!`,"ok");
@@ -928,7 +928,7 @@ async function deleteClub(idx) {
 
   // Delete from GitHub
   try {
-    const path = `clubs/${club.slug}.json`;
+    const path = `burgees_data/clubs/${club.slug}.json`;
     const { sha } = await ghGetFile(path);
     await ghDeleteFile(path, sha, `Delete ${club.name}`);
     showMsg("table-msg", `✓ "${club.name}" deleted from GitHub`, "ok");
@@ -1013,7 +1013,7 @@ async function saveEdit() {
 
   // Push to GitHub
   try {
-    const path = `clubs/${updated.slug}.json`;
+    const path = `burgees_data/clubs/${updated.slug}.json`;
     let sha = null;
     try { const existing = await ghGetFile(path); sha = existing.sha; } catch(e) {}
     await ghPutFile(path, JSON.stringify(updated, null, 2), sha, `Update ${updated.name}`);
@@ -1021,7 +1021,7 @@ async function saveEdit() {
     if (oldSlug && oldSlug !== updated.slug) {
       try {
         const old = await ghGetFile(`clubs/${oldSlug}.json`);
-        await ghDeleteFile(`clubs/${oldSlug}.json`, old.sha, `Remove old slug ${oldSlug}`);
+        await ghDeleteFile(`burgees_data/clubs/${oldSlug}.json`, old.sha, `Remove old slug ${oldSlug}`);
       } catch(e) {}
     }
     showMsg("table-msg", `✓ Saved "${updated.name}" to GitHub`, "ok");
