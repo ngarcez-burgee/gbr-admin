@@ -779,6 +779,17 @@ function addNewSymbol(prefix) {
   input.value = "";
   if (prefix==="new") newSymGroup=''; else editSymGroup='';
   document.querySelectorAll(`#${prefix}-group-pills .group-pill`).forEach(p=>p.classList.remove("selected"));
+  saveVocabulary();
+}
+
+async function saveVocabulary() {
+  try {
+    let sha = null;
+    try { const existing = await ghGetFile("burgees_data/vocabulary.json"); sha = existing.sha; } catch(e) {}
+    await ghPutFile("burgees_data/vocabulary.json", JSON.stringify(vocab, null, 2), sha, "Update vocabulary");
+  } catch(e) {
+    console.warn("Vocabulary save failed:", e.message);
+  }
 }
 
 // ── Slug ──────────────────────────────────────────────────────
