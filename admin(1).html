@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GBR Admin Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --navy:#0a1628;--deep:#112240;--mid:#1a3a6b;--accent:#c8973a;--accent2:#e8c96a;
+      --cream:#f5f0e8;--white:#ffffff;--text:#1a1a2e;--muted:#6b7280;--border:#e2d9cc;
+      --green:#3B6D11;--green-l:#eaf3de;--red:#A32D2D;--red-l:#fcebeb;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Source Sans 3',sans-serif;background:var(--cream);color:var(--text);}
+
+    /* HEADER */
+    header{background:var(--navy);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.3);border-bottom:3px solid var(--accent);}
+    .header-inner{max-width:1400px;margin:0 auto;padding:0 24px;height:70px;display:flex;align-items:center;justify-content:space-between;}
+    .header-title{display:flex;align-items:center;gap:14px;}
+    .header-title h1{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--white);}
+    .header-title span{font-size:0.78rem;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;display:block;margin-top:2px;}
+    .header-actions{display:flex;gap:10px;}
+
+    /* BUTTONS */
+    .btn{padding:9px 20px;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:0.88rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+    .btn-accent{background:var(--accent);color:var(--navy);}
+    .btn-accent:hover{background:var(--accent2);}
+    .btn-navy{background:rgba(255,255,255,0.1);color:var(--white);border:1px solid rgba(255,255,255,0.2);}
+    .btn-navy:hover{background:rgba(255,255,255,0.18);}
+    .btn-green{background:var(--green-l);color:var(--green);border:1px solid var(--green);}
+    .btn-green:hover{background:var(--green);color:var(--white);}
+    .btn-red{background:var(--red-l);color:var(--red);border:1px solid var(--red);padding:6px 12px;font-size:0.82rem;}
+    .btn-red:hover{background:var(--red);color:var(--white);}
+    .btn-edit{background:#e8eef7;color:var(--mid);border:1px solid #b5d4f4;padding:6px 12px;font-size:0.82rem;}
+    .btn-edit:hover{background:var(--mid);color:var(--white);}
+    .btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+    .btn-outline:hover{background:var(--accent);color:var(--navy);}
+    .btn-sm{padding:5px 12px;font-size:0.78rem;border-radius:6px;}
+
+    /* HERO */
+    .hero{background:var(--deep);color:var(--white);padding:36px 24px;border-bottom:1px solid rgba(200,151,58,0.3);}
+    .hero-inner{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+    .hero h2{font-family:'Playfair Display',serif;font-size:1.5rem;margin-bottom:10px;color:var(--accent);}
+    .steps{list-style:none;padding:0;}
+    .steps li{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.07);font-size:0.9rem;color:rgba(255,255,255,0.75);line-height:1.5;}
+    .steps li:last-child{border-bottom:none;}
+    .step-n{background:var(--accent);color:var(--navy);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;flex-shrink:0;margin-top:1px;}
+    .hero-note{background:rgba(200,151,58,0.12);border:1px solid rgba(200,151,58,0.3);border-radius:8px;padding:14px 18px;font-size:0.85rem;color:rgba(255,255,255,0.7);margin-top:14px;line-height:1.6;}
+    .hero-note strong{color:var(--accent);}
+
+    /* MAIN */
+    main{max-width:1400px;margin:0 auto;padding:32px 24px 60px;}
+
+    /* STATS */
+    .stats-bar{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:28px;}
+    .stat-pill{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+    .stat-pill .n{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:var(--navy);line-height:1;}
+    .stat-pill .l{font-size:0.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;}
+
+    /* SECTIONS */
+    .section{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:32px;scroll-margin-top:90px;}
+    .section h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;}
+    .section h3::after{content:' ▼';font-size:0.7rem;color:var(--muted);margin-left:auto;}
+    .section h3.collapsed::after{content:' ▶';}
+    .section-body.hidden{display:none;}
+
+    /* FORM */
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+    .form-group{display:flex;flex-direction:column;gap:5px;}
+    .form-group.full{grid-column:1/-1;}
+    .form-group label{font-size:0.78rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);}
+    .form-group input,.form-group select,.form-group textarea{padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:0.92rem;color:var(--text);background:var(--cream);outline:none;transition:border-color 0.2s,background 0.2s;}
+    .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);background:var(--white);}
+    .form-group input[readonly]{background:#f0f0f0;color:var(--muted);cursor:default;}
+    .form-note{font-size:0.76rem;color:var(--muted);}
+    .form-actions{display:flex;gap:10px;margin-top:18px;align-items:center;flex-wrap:wrap;}
+    .msg{font-size:0.85rem;font-weight:600;}
+    .msg.ok{color:#5ddb5d;}
+    .msg.err{color:#ff6b6b;}
+    .slug-display{font-size:0.78rem;color:var(--muted);margin-top:4px;font-family:monospace;}
+    .slug-display span{color:var(--accent);font-weight:600;}
+
+    /* TAG PANEL */
+    .tag-panel{border:1px solid var(--border);border-radius:10px;padding:16px;background:#fafaf8;}
+    .tag-panel-title{font-size:0.82rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--navy);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);}
+    .tag-section{margin-bottom:12px;}
+    .tag-section-label{font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.7px;color:var(--muted);margin-bottom:6px;}
+
+    /* Shape */
+    .shape-btns{display:flex;gap:6px;flex-wrap:wrap;}
+    .shape-btn{padding:5px 12px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text);font-size:0.82rem;cursor:pointer;transition:all 0.15s;}
+    .shape-btn:hover{border-color:var(--accent);}
+    .shape-btn.active{background:var(--accent);color:var(--navy);border-color:var(--accent);font-weight:600;}
+
+    /* Colors */
+    .color-rows{display:flex;flex-direction:column;gap:7px;}
+    .color-row{display:flex;align-items:center;gap:8px;}
+    .color-row-label{font-size:0.72rem;color:var(--muted);width:65px;flex-shrink:0;}
+    .swatches{display:flex;gap:4px;flex-wrap:wrap;background:white;padding:5px;border-radius:6px;border:1px solid var(--border);}
+    .swatch{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform 0.15s;flex-shrink:0;}
+    .swatch:hover{transform:scale(1.2);}
+    .swatch.active{box-shadow:0 0 0 2px white,0 0 0 3px var(--accent);}
+    .swatch.none-sw{background:#f0f0f0!important;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;font-size:9px;color:#999;}
+    .swatch.none-sw.active{border-color:var(--accent);}
+
+    /* Symbols */
+    .symbol-groups-wrap{display:flex;flex-wrap:wrap;gap:0;}
+    .symbol-group{flex:1;min-width:180px;padding:7px 5px;border-top:1px solid var(--border);}
+    .symbol-group-label{font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.6px;color:var(--accent);margin-bottom:4px;}
+    .symbol-pills{display:flex;flex-wrap:wrap;gap:3px;}
+    .sym-pill{padding:3px 8px;border:1px solid var(--border);border-radius:20px;font-size:0.72rem;cursor:pointer;background:var(--white);color:var(--text);transition:all 0.15s;}
+    .sym-pill:hover{border-color:var(--accent);color:var(--accent);}
+    .sym-pill.active{background:var(--accent);color:var(--navy);border-color:var(--accent);font-weight:600;}
+    .sym-pill.custom{border-style:dashed;border-color:#aaa;color:var(--muted);}
+    .sym-pill.custom.active{background:var(--mid);color:white;border-color:var(--mid);}
+
+    /* Add symbol */
+    .add-sym-wrap{margin-top:10px;padding-top:8px;border-top:1px solid var(--border);}
+    .add-sym-row{display:flex;gap:6px;align-items:center;margin-bottom:7px;}
+    .add-sym-input{flex:1;padding:5px 10px;border:1px dashed var(--border);border-radius:20px;font-size:0.78rem;outline:none;font-family:inherit;}
+    .add-sym-input:focus{border-color:var(--accent);}
+    .add-sym-btn{padding:5px 12px;border:1px solid var(--accent);border-radius:20px;background:transparent;color:var(--accent);font-size:0.78rem;cursor:pointer;white-space:nowrap;}
+    .add-sym-btn:hover{background:var(--accent);color:var(--navy);}
+    .group-pills{display:flex;flex-wrap:wrap;gap:4px;}
+    .group-pill{padding:3px 10px;border:1px solid var(--border);border-radius:20px;font-size:0.72rem;cursor:pointer;background:var(--white);color:var(--muted);transition:all 0.15s;}
+    .group-pill:hover{border-color:var(--accent);color:var(--accent);}
+    .group-pill.selected{background:var(--mid);color:white;border-color:var(--mid);}
+
+    /* Border */
+    .border-toggle{display:flex;gap:6px;}
+    .border-btn{padding:5px 14px;border:1px solid var(--border);border-radius:6px;background:var(--white);color:var(--text);font-size:0.82rem;cursor:pointer;transition:all 0.15s;}
+    .border-btn:hover{border-color:var(--accent);}
+    .border-btn.active{background:var(--accent);color:var(--navy);border-color:var(--accent);font-weight:600;}
+
+    /* CSV */
+    .csv-drop{border:2px dashed var(--border);border-radius:10px;padding:30px;text-align:center;cursor:pointer;transition:all 0.2s;background:var(--cream);}
+    .csv-drop:hover,.csv-drop.dragover{border-color:var(--accent);background:rgba(200,151,58,0.05);}
+    .csv-drop p{color:var(--muted);font-size:0.9rem;margin-top:8px;}
+    .csv-preview{margin-top:16px;overflow-x:auto;}
+    .csv-preview table{width:100%;border-collapse:collapse;font-size:0.82rem;}
+    .csv-preview th{background:var(--cream);padding:6px 10px;text-align:left;border-bottom:1px solid var(--border);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);}
+    .csv-preview td{padding:6px 10px;border-bottom:1px solid var(--border);}
+    .rename-list{margin-top:16px;background:#f8f6f0;border:1px solid var(--border);border-radius:8px;padding:16px;}
+    .rename-list h4{font-size:0.85rem;font-weight:600;color:var(--navy);margin-bottom:10px;}
+    .rename-list table{width:100%;border-collapse:collapse;font-size:0.8rem;}
+    .rename-list th{text-align:left;padding:5px 8px;border-bottom:1px solid var(--border);color:var(--muted);font-size:0.72rem;text-transform:uppercase;}
+    .rename-list td{padding:5px 8px;border-bottom:1px solid var(--border);font-family:monospace;font-size:0.78rem;}
+    .rename-list td.arrow{color:var(--accent);text-align:center;font-family:sans-serif;}
+
+    /* TABLE */
+    .table-section{background:var(--white);border:1px solid var(--border);border-radius:14px;overflow:hidden;scroll-margin-top:90px;}
+    .table-header{padding:18px 24px;display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+    .table-header h3{font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--navy);flex:1;cursor:default;}
+    .table-header h3::after{display:none;}
+    .search-box{padding:8px 14px;border:1px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:0.88rem;outline:none;width:240px;background:var(--cream);transition:border-color 0.2s;}
+    .search-box:focus{border-color:var(--accent);}
+    .table-wrap{overflow-x:auto;max-height:560px;overflow-y:auto;}
+    table{width:100%;border-collapse:collapse;font-size:0.88rem;}
+    thead th{background:var(--cream);padding:10px 14px;text-align:left;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--muted);position:sticky;top:0;z-index:2;border-bottom:1px solid var(--border);}
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.12s;}
+    tbody tr:last-child{border-bottom:none;}
+    tbody tr:hover{background:#faf7f2;}
+    td{padding:9px 14px;vertical-align:middle;}
+    td.flag-cell{width:52px;}
+    .flag-thumb{width:44px;height:30px;background:#e8eef7;border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:14px;}
+    .flag-thumb img{max-width:100%;max-height:100%;object-fit:contain;}
+    td.name-cell{font-weight:600;color:var(--navy);max-width:200px;}
+    td.loc-cell{color:var(--muted);max-width:140px;}
+    td.url-cell{max-width:160px;}
+    td.url-cell a{color:var(--mid);font-size:0.8rem;text-decoration:none;}
+    td.url-cell a:hover{color:var(--accent);}
+    td.img-cell{color:var(--muted);font-size:0.78rem;max-width:160px;word-break:break-all;}
+    td.action-cell{white-space:nowrap;}
+    .no-results{text-align:center;padding:40px;color:var(--muted);}
+
+    /* MODAL */
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;}
+    .modal-overlay.open{display:flex;}
+    .modal{background:var(--white);border-radius:14px;padding:28px;width:980px;max-width:98vw;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);}
+    .modal h3{font-family:'Playfair Display',serif;font-size:1.2rem;color:var(--navy);margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border);cursor:default;}
+    .modal h3::after{display:none;}
+    .modal-body{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+    .modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+    .btn-cancel{background:var(--cream);color:var(--muted);border:1px solid var(--border);}
+    .btn-cancel:hover{background:var(--border);}
+    .btn-save{background:var(--navy);color:var(--white);}
+    .btn-save:hover{background:var(--mid);}
+
+    /* EXPORT BAR */
+    .export-bar{background:var(--navy);border-radius:12px;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;margin-top:28px;flex-wrap:wrap;gap:14px;}
+    .export-bar p{color:rgba(255,255,255,0.7);font-size:0.9rem;}
+    .export-bar strong{color:var(--accent);}
+
+    @media(max-width:700px){.hero-inner,.form-grid,.modal-body{grid-template-columns:1fr;}}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-title">
+      <span>🔒</span>
+      <div><h1>GBR Admin Panel</h1><span>Global Burgee Register — Private</span></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;margin:0 24px;">
+      <a href="#section-add" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">➕ Add Club</a>
+      <a href="#section-table" onclick="window.scrollTo({top:document.getElementById('section-table').offsetTop-90,behavior:'smooth'});" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">✏ Edit / Delete</a>
+      <a href="#section-csv" onclick="document.getElementById('section-csv').querySelector('.section-body').classList.remove('hidden');document.getElementById('section-csv').querySelector('h3').classList.remove('collapsed');" style="padding:8px 18px;font-size:0.85rem;font-weight:600;color:var(--white);background:rgba(255,255,255,0.15);text-decoration:none;border-radius:7px;border:1px solid rgba(255,255,255,0.25);white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.25)'" onmouseout="this.style.background='rgba(255,255,255,0.15)'">📂 CSV Upload</a>
+    </div>
+    <div class="header-actions" style="display:flex;align-items:center;gap:12px;"><span id="table-msg" class="msg" style="font-size:0.85rem;"></span>
+      <button onclick="deployToServer()" style="padding:9px 20px;font-size:0.88rem;font-weight:700;background:var(--accent);color:var(--navy);border:none;border-radius:8px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px;" onmouseover="this.style.background='var(--accent2)'" onmouseout="this.style.background='var(--accent)'">🚀 Deploy</button>
+    </div>
+  </div>
+</header>
+
+<div style="background:var(--deep);border-bottom:1px solid rgba(200,151,58,0.3);">
+  <div style="max-width:1400px;margin:0 auto;padding:0 24px;">
+    <button onclick="toggleHero(this)" style="display:flex;align-items:center;gap:8px;width:100%;padding:12px 0;background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.6);font-family:'Source Sans 3',sans-serif;font-size:1.1rem;font-weight:600;text-align:left;">
+      <span id="hero-arrow">▶</span> How to use this panel
+    </button>
+  </div>
+  <div id="hero-body" style="display:none;">
+    <div class="hero-inner" style="max-width:1400px;margin:0 auto;padding:0 24px 28px;">
+      <div>
+        <h2 style="color:var(--accent);">How to add a new club</h2>
+        <ol class="steps">
+          <li><span class="step-n">1</span>Fill in Club Name and Country — the slug and image filename are generated automatically.</li>
+          <li><span class="step-n">2</span>Rename your image file to match the generated filename, then save it to <strong style="color:var(--accent2)">burgees_data/images/</strong>.</li>
+          <li><span class="step-n">3</span>Tag the burgee using the tagging panel on the right.</li>
+          <li><span class="step-n">4</span>Click <strong style="color:var(--accent2)">Add Club</strong>.</li>
+          <li><span class="step-n">5</span>Click <strong style="color:var(--accent2)">Export &amp; Download</strong> when done — produces clubs_full.json, clubs.json and a backup spreadsheet.</li>
+          <li><span class="step-n">6</span>Upload all files via FileZilla.</li>
+        </ol>
+      </div>
+      <div>
+        <h2 style="color:var(--accent);">CSV Bulk Upload</h2>
+        <ol class="steps">
+          <li><span class="step-n">1</span>Prepare a CSV: Club Name, Country, Region, City, Year Founded, Website, Contact Name, Contact Email. Image File is optional.</li>
+          <li><span class="step-n">2</span>Drag &amp; drop the CSV into the upload zone.</li>
+          <li><span class="step-n">3</span>Review the preview and the <strong style="color:var(--accent2)">image rename list</strong> — shows exactly what to rename each image file to.</li>
+          <li><span class="step-n">4</span>Click Import, then tag each new club via Edit.</li>
+        </ol>
+        <div class="hero-note"><strong>Important:</strong> Nothing is saved automatically — Export and upload via FileZilla to go live.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main>
+
+  <div class="stats-bar">
+    <div class="stat-pill"><div><div class="n" id="stat-total">—</div><div class="l">Total Clubs</div></div></div>
+    <div class="stat-pill"><div><div class="n" id="stat-images">—</div><div class="l">With Images</div></div></div>
+    <div class="stat-pill"><div><div class="n" id="stat-websites">—</div><div class="l">With Websites</div></div></div>
+    <div class="stat-pill"><div><div class="n" id="stat-countries">—</div><div class="l">Countries</div></div></div>
+    <div class="stat-pill"><div><div class="n" id="stat-tagged">—</div><div class="l">Tagged</div></div></div>
+  </div>
+
+  <!-- ADD NEW CLUB -->
+  <div class="section" id="section-add">
+    <h3 onclick="toggleSection(this)">➕ Add New Club</h3>
+    <div class="section-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+        <div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Club Name *</label>
+              <input type="text" id="new-name" placeholder="e.g. Newport Yacht Club" oninput="updateNewSlug()" />
+            </div>
+            <div class="form-group">
+              <label>Country *</label>
+              <input type="text" id="new-country" placeholder="e.g. United States" oninput="updateNewSlug()" />
+            </div>
+            <div class="form-group full">
+              <label>Slug (auto-generated)</label>
+              <input type="text" id="new-slug" readonly />
+              <div class="slug-display">Save image as: <span id="new-image-preview">—</span></div>
+            </div>
+            <div class="form-group">
+              <label>Image Extension</label>
+              <select id="new-img-ext" onchange="updateNewSlug()">
+                <option value=".png">.png</option>
+                <option value=".gif">.gif</option>
+                <option value=".jpg">.jpg</option>
+                <option value=".webp">.webp</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Year Founded</label>
+              <input type="number" id="new-year-founded" placeholder="e.g. 1844" min="1600" max="2099" />
+            </div>
+            <div class="form-group full">
+              <label>Website</label>
+              <input type="url" id="new-website" placeholder="https://..." />
+            </div>
+            <div class="form-group">
+              <label>City</label>
+              <input type="text" id="new-city" placeholder="e.g. Newport" />
+            </div>
+            <div class="form-group">
+              <label>State / Province / Region</label>
+              <input type="text" id="new-region" placeholder="e.g. Rhode Island" />
+            </div>
+            <div class="form-group">
+              <label>Contact Name</label>
+              <input type="text" id="new-contact-name" />
+            </div>
+            <div class="form-group">
+              <label>Contact Email</label>
+              <input type="email" id="new-contact-email" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="tag-panel" id="new-tag-panel"></div>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn btn-green" onclick="addClub()">➕ Add Club</button>
+        <span class="msg" id="add-msg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CSV BULK UPLOAD -->
+  <div class="section" id="section-csv">
+    <h3 class="collapsed" onclick="toggleSection(this)">📂 CSV Bulk Upload</h3>
+    <div class="section-body hidden">
+      <div class="csv-drop" id="csv-drop" onclick="document.getElementById('csv-file').click()"
+           ondragover="csvDragOver(event)" ondragleave="csvDragLeave(event)" ondrop="csvDrop(event)">
+        <div style="font-size:2rem;">📄</div>
+        <p>Drag &amp; drop a CSV file here, or click to browse</p>
+        <p style="font-size:0.78rem;margin-top:6px;">Columns: Club Name, Country, Region, City, Year Founded, Website, Contact Name, Contact Email (Image File optional)</p>
+      </div>
+      <input type="file" id="csv-file" accept=".csv" style="display:none" onchange="csvFileSelected(event)" />
+      <div id="csv-preview" class="csv-preview"></div>
+      <div id="csv-rename" class="rename-list" style="display:none;">
+        <h4>📋 Image rename list — rename these files before uploading to the server</h4>
+        <table>
+          <thead><tr><th>Original filename (from contributor)</th><th></th><th>Rename to (slug-based)</th></tr></thead>
+          <tbody id="rename-tbody"></tbody>
+        </table>
+        <div style="margin-top:10px;">
+          <button class="btn btn-outline btn-sm" onclick="downloadRenameList()">⬇ Download rename list</button>
+        </div>
+      </div>
+      <div class="form-actions" id="csv-actions" style="display:none;">
+        <button class="btn btn-green" onclick="importCSV()">✓ Import <span id="csv-count"></span> clubs</button>
+        <button class="btn btn-cancel btn" onclick="clearCSV()">Cancel</button>
+        <span class="msg" id="csv-msg"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLUB TABLE -->
+  <div class="table-section" id="section-table">
+    <div class="table-header">
+      <h3>All Clubs <span id="table-count" style="font-size:0.85rem;color:var(--muted);font-family:'Source Sans 3',sans-serif;font-weight:400;"></span></h3>
+      <div style="display:flex;gap:6px;">
+        <button id="filter-all" onclick="setFilter('all')" style="padding:6px 14px;font-size:0.82rem;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--accent);background:var(--accent);color:var(--navy);transition:all 0.2s;">All</button>
+        <button id="filter-untagged" onclick="setFilter('untagged')" style="padding:6px 14px;font-size:0.82rem;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--muted);transition:all 0.2s;">Untagged only</button>
+        <button id="filter-new" onclick="setFilter('new')" style="padding:6px 14px;font-size:0.82rem;font-weight:600;border-radius:6px;cursor:pointer;border:1px solid var(--border);background:var(--white);color:var(--muted);transition:all 0.2s;">New (7 days)</button>
+      </div>
+      <input type="text" class="search-box" id="table-search" placeholder="🔍 Search clubs…" oninput="renderTable()" />
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Flag</th><th>Club Name</th><th>Country</th><th>Website</th><th>Slug</th><th>Tagged</th><th>Added</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="club-tbody">
+          <tr><td colspan="7" class="no-results">Loading clubs…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</main>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h3>✏️ Edit Club</h3>
+    <input type="hidden" id="edit-index" />
+    <div class="modal-body">
+      <div>
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Club Name *</label>
+            <input type="text" id="edit-name" oninput="updateEditSlug()" />
+          </div>
+          <div class="form-group">
+            <label>Country</label>
+            <input type="text" id="edit-country" oninput="updateEditSlug()" />
+          </div>
+          <div class="form-group">
+            <label>Year Founded</label>
+            <input type="number" id="edit-year-founded" min="1600" max="2099" />
+          </div>
+          <div class="form-group full">
+            <label>Slug</label>
+            <input type="text" id="edit-slug" readonly />
+          </div>
+          <div class="form-group full">
+            <label>Website</label>
+            <input type="url" id="edit-website" />
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" id="edit-city" />
+          </div>
+          <div class="form-group">
+            <label>Region / State</label>
+            <input type="text" id="edit-region" />
+          </div>
+          <div class="form-group">
+            <label>Contact Name</label>
+            <input type="text" id="edit-contact-name" />
+          </div>
+          <div class="form-group">
+            <label>Contact Email</label>
+            <input type="email" id="edit-contact-email" />
+          </div>
+          <div class="form-group full">
+            <label>Image File</label>
+            <input type="text" id="edit-image" oninput="updateEditImage()" />
+            <span class="form-note">Filename only, e.g. newport-yacht-club.png</span>
+          </div>
+        </div>
+        <!-- Burgee preview -->
+        <div style="margin-top:16px;border:1px solid var(--border);border-radius:8px;background:white;display:flex;align-items:center;justify-content:center;min-height:140px;overflow:hidden;">
+          <img id="edit-burgee-img" src="" alt="" style="max-width:100%;max-height:200px;object-fit:contain;display:none;" />
+          <span id="edit-burgee-placeholder" style="color:var(--muted);font-size:0.85rem;">No image</span>
+        </div>
+      </div>
+      <div>
+        <div class="tag-panel" id="edit-tag-panel"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-save" onclick="(async()=>{try{await saveEdit();}catch(e){console.error(e);}})()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── GitHub API config ─────────────────────────────────────────
+const GH_OWNER = "ngarcez-burgee";
+const GH_REPO  = "gbr-data";
+let GH_PAT = "";
+
+// ── Login overlay ─────────────────────────────────────────────
+function showLoginOverlay() {
+  const overlay = document.getElementById("login-overlay");
+  overlay.style.display = "flex";
+}
+
+function submitPAT() {
+  const input = document.getElementById("pat-input").value.trim();
+  if (!input) return;
+  GH_PAT = input;
+  document.getElementById("login-overlay").style.display = "none";
+  loadData();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  showLoginOverlay();
+  document.getElementById("pat-input").addEventListener("keydown", e => {
+    if (e.key === "Enter") submitPAT();
+  });
+});
+
+// ── GitHub API helpers ────────────────────────────────────────
+function ghHeaders() {
+  return {
+    "Authorization": `token ${GH_PAT}`,
+    "Accept": "application/vnd.github+json",
+    "Content-Type": "application/json",
+  };
+}
+
+async function ghGetFile(path) {
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}?t=${Date.now()}`;
+  const r = await fetch(url, { headers: ghHeaders() });
+  if (!r.ok) throw new Error(`GitHub GET failed: ${path} (${r.status})`);
+  const data = await r.json();
+  return { content: atob(data.content.replace(/\n/g,"")), sha: data.sha };
+}
+
+async function ghPutFile(path, content, sha, message) {
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+  const body = {
+    message,
+    content: btoa(unescape(encodeURIComponent(content))),
+  };
+  if (sha) body.sha = sha;
+  const r = await fetch(url, { method: "PUT", headers: ghHeaders(), body: JSON.stringify(body) });
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(`GitHub PUT failed: ${path} — ${err.message}`);
+  }
+  return await r.json();
+}
+
+async function ghDeleteFile(path, sha, message) {
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+  const body = { message, sha };
+  const r = await fetch(url, { method: "DELETE", headers: ghHeaders(), body: JSON.stringify(body) });
+  if (!r.ok) {
+    const err = await r.json();
+    throw new Error(`GitHub DELETE failed: ${path} — ${err.message}`);
+  }
+}
+
+let clubs = [];
+let vocab = {};
+let csvRows = [];
+let csvRenameData = [];
+
+let newTags  = {color_primary:'',color_secondary:'',color_tertiary:'',burgee_shape:'',symbols:'',has_border:'no',organization:'',tag_notes:''};
+let editTags = {color_primary:'',color_secondary:'',color_tertiary:'',burgee_shape:'',symbols:'',has_border:'no',organization:'',tag_notes:''};
+
+// Selected group for new symbol
+let newSymGroup  = '';
+let editSymGroup = '';
+
+const COLORS = [
+  {name:"navy",hex:"#0A1628"},{name:"red",hex:"#C0392B"},{name:"white",hex:"#FFFFFF",border:true},
+  {name:"black",hex:"#1a1a1a"},{name:"yellow",hex:"#F1C40F"},{name:"gold",hex:"#C9A84C"},
+  {name:"green",hex:"#27AE60"},{name:"blue",hex:"#2980B9"},{name:"orange",hex:"#E67E22"},
+  {name:"purple",hex:"#8E44AD"},{name:"maroon",hex:"#7B241C"},{name:"sky blue",hex:"#87CEEB"},
+  {name:"silver",hex:"#BDC3C7"},{name:"grey",hex:"#7F8C8D"},
+];
+
+const SHAPES = [
+  {key:"triangle",label:"△ Triangle"},{key:"swallowtail",label:"⚑ Swallowtail"},
+  {key:"rectangle",label:"▭ Rectangle"},{key:"cross",label:"✛ Cross"},
+];
+
+const DEFAULT_GROUPS = {
+  "Nautical":  ["anchor","fouled anchor","ship","compass rose","wheel","trident","crossed oars","life ring","waves","lighthouse"],
+  "Heraldic":  ["cross","nordic cross","saltire","crown","shield","coat of arms","castle","flag"],
+  "Animals":   ["lion","eagle","dragon","bird","animal","fish","dolphin","seahorse"],
+  "Geometric": ["stripes horizontal","stripes vertical","stripes diagonal","chevron","arrow","circle","diamond"],
+  "Celestial": ["stars","sun","moon"],
+  "Text":      ["letters","monogram"],
+};
+
+// ── Load ──────────────────────────────────────────────────────
+async function loadData() {
+  document.getElementById("club-tbody").innerHTML = '<tr><td colspan="7" class="no-results">Loading from GitHub…</td></tr>';
+  try {
+    const { content } = await ghGetFile("clubs_full.json");
+    clubs = JSON.parse(content);
+  } catch(e) {
+    clubs = [];
+    document.getElementById("club-tbody").innerHTML = `<tr><td colspan="7" class="no-results">⚠ Could not load clubs_full.json: ${e.message}</td></tr>`;
+  }
+  try {
+    const { content } = await ghGetFile("vocabulary.json");
+    vocab = JSON.parse(content);
+  } catch(e) { vocab = {}; }
+
+  buildTagPanel("new-tag-panel", newTags, "new");
+  buildTagPanel("edit-tag-panel", editTags, "edit");
+  updateStats();
+  renderTable();
+}
+
+// ── Stats ─────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById("stat-total").textContent     = clubs.length.toLocaleString();
+  document.getElementById("stat-images").textContent    = clubs.filter(c=>c.burgee_local).length.toLocaleString();
+  document.getElementById("stat-websites").textContent  = clubs.filter(c=>c.website).length.toLocaleString();
+  document.getElementById("stat-countries").textContent = [...new Set(clubs.map(c=>c.country).filter(Boolean))].length.toLocaleString();
+  document.getElementById("stat-tagged").textContent    = clubs.filter(c=>c.color_primary).length.toLocaleString();
+}
+
+// ── Tag panel ─────────────────────────────────────────────────
+function buildTagPanel(containerId, tagState, prefix) {
+  const el = document.getElementById(containerId);
+  const groups = (vocab.symbols && Object.keys(vocab.symbols).length) ? vocab.symbols : DEFAULT_GROUPS;
+  const custom = vocab.custom_symbols || [];
+
+  el.innerHTML = `
+    <div class="tag-panel-title">🏷 Visual Tags</div>
+
+    <div class="tag-section">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start;">
+        <div>
+          <div class="tag-section-label">Shape</div>
+          <div class="shape-btns" id="${prefix}-shape-btns">
+            ${SHAPES.map(s=>`<button class="shape-btn${tagState.burgee_shape===s.key?' active':''}"
+              onclick="selectShape('${prefix}','${s.key}')">${s.label}</button>`).join("")}
+          </div>
+        </div>
+        <div>
+          <div class="tag-section-label">Border</div>
+          <div class="border-toggle" id="${prefix}-border-btns">
+            <button class="border-btn${tagState.has_border==='yes'?' active':''}" onclick="selectBorder('${prefix}','yes')">Yes</button>
+            <button class="border-btn${tagState.has_border==='no'?' active':''}" onclick="selectBorder('${prefix}','no')">No</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-label">Colors</div>
+      <div class="color-rows">
+        ${["primary","secondary","tertiary"].map(role=>`
+          <div class="color-row">
+            <span class="color-row-label">${role.charAt(0).toUpperCase()+role.slice(1)}</span>
+            <div class="swatches" id="${prefix}-sw-${role}">
+              <div class="swatch none-sw${!tagState['color_'+role]?' active':''}" title="none"
+                   onclick="selectColor('${prefix}','${role}','')" data-color="">—</div>
+              ${COLORS.map(c=>`<div class="swatch${tagState['color_'+role]===c.name?' active':''}"
+                title="${c.name}" style="background:${c.hex}${c.border?';border:1px solid #ccc':''}"
+                onclick="selectColor('${prefix}','${role}','${c.name}')" data-color="${c.name}"></div>`).join("")}
+            </div>
+          </div>`).join("")}
+      </div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-label">Symbols</div>
+      <div class="symbol-groups-wrap" id="${prefix}-sym-groups">
+        ${Object.entries(groups).map(([group,syms])=>`
+          <div class="symbol-group" data-group="${group}">
+            <div class="symbol-group-label">${group}</div>
+            <div class="symbol-pills">
+              ${syms.map(s=>`<span class="sym-pill${isSymActive(tagState,s)?' active':''}"
+                data-sym="${s}" onclick="toggleSym('${prefix}','${s}')">${s}</span>`).join("")}
+            </div>
+          </div>`).join("")}
+        <div class="symbol-group" id="${prefix}-custom-group" style="${custom.length?'':'display:none'}">
+          <div class="symbol-group-label">Custom</div>
+          <div class="symbol-pills" id="${prefix}-custom-pills">
+            ${custom.map(s=>`<span class="sym-pill custom${isSymActive(tagState,s)?' active':''}"
+              data-sym="${s}" onclick="toggleSym('${prefix}','${s}')">${s}</span>`).join("")}
+          </div>
+        </div>
+      </div>
+
+      <div class="add-sym-wrap">
+        <div class="add-sym-row">
+          <input class="add-sym-input" id="${prefix}-new-sym" placeholder="+ new symbol name…"
+                 onkeydown="if(event.key==='Enter') addNewSymbol('${prefix}')">
+          <button class="add-sym-btn" onclick="addNewSymbol('${prefix}')">Add</button>
+        </div>
+        <div style="margin-bottom:5px;font-size:0.7rem;color:var(--muted);">Assign to group:</div>
+        <div class="group-pills" id="${prefix}-group-pills">
+          ${Object.keys(groups).map(g=>`<span class="group-pill" data-group="${g}"
+            onclick="selectSymGroup('${prefix}','${g}')">${g}</span>`).join("")}
+          <span class="group-pill" data-group="Custom"
+            onclick="selectSymGroup('${prefix}','Custom')">Custom</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-label">Organization Type</div>
+      <div style="display:flex;gap:16px;align-items:center;">
+        ${["club","association","institution"].map(o=>`
+          <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;cursor:pointer;">
+            <input type="radio" name="${prefix}-org" value="${o}"
+              ${tagState.organization===o?'checked':''}
+              onchange="selectOrg('${prefix}','${o}')"
+              style="accent-color:var(--accent);cursor:pointer;" />
+            ${o.charAt(0).toUpperCase()+o.slice(1)}
+          </label>`).join("")}
+        <label style="display:flex;align-items:center;gap:5px;font-size:0.82rem;cursor:pointer;">
+          <input type="radio" name="${prefix}-org" value=""
+            ${!tagState.organization?'checked':''}
+            onchange="selectOrg('${prefix}','')"
+            style="accent-color:var(--accent);cursor:pointer;" />
+          None
+        </label>
+      </div>
+    </div>
+
+    <div class="tag-section">
+      <div class="tag-section-label">Notes</div>
+      <textarea id="${prefix}-tag-notes" rows="2"
+        style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.82rem;resize:vertical;background:var(--cream);outline:none;"
+        placeholder="Any notes about this burgee…">${tagState.tag_notes||""}</textarea>
+    </div>
+  `;
+}
+
+function isSymActive(tagState, sym) {
+  if (!tagState.symbols) return false;
+  return tagState.symbols.split(",").map(s=>s.trim()).includes(sym);
+}
+
+// ── Tag interactions ──────────────────────────────────────────
+function getTagState(prefix) { return prefix==="new" ? newTags : editTags; }
+
+function selectShape(prefix, shape) {
+  getTagState(prefix).burgee_shape = shape;
+  document.querySelectorAll(`#${prefix}-shape-btns .shape-btn`).forEach(b => {
+    b.classList.toggle("active", b.getAttribute("onclick").includes(`'${shape}'`));
+  });
+}
+
+function selectColor(prefix, role, color) {
+  getTagState(prefix)["color_"+role] = color;
+  document.querySelectorAll(`#${prefix}-sw-${role} .swatch`).forEach(s => {
+    s.classList.toggle("active", s.dataset.color === color);
+  });
+}
+
+function toggleSym(prefix, sym) {
+  const state = getTagState(prefix);
+  const active = state.symbols ? state.symbols.split(",").map(s=>s.trim()).filter(Boolean) : [];
+  const idx = active.indexOf(sym);
+  if (idx >= 0) active.splice(idx, 1); else active.push(sym);
+  state.symbols = active.join(", ");
+  document.querySelectorAll(`#${prefix}-sym-groups .sym-pill, #${prefix}-custom-pills .sym-pill`).forEach(p => {
+    if (p.dataset.sym === sym) p.classList.toggle("active", idx < 0);
+  });
+}
+
+function selectBorder(prefix, val) {
+  getTagState(prefix).has_border = val;
+  document.querySelectorAll(`#${prefix}-border-btns .border-btn`).forEach(b => {
+    b.classList.toggle("active", b.textContent.toLowerCase()===val);
+  });
+}
+
+function selectOrg(prefix, val) {
+  getTagState(prefix).organization = val;
+}
+
+function selectSymGroup(prefix, group) {
+  if (prefix==="new") newSymGroup = group;
+  else editSymGroup = group;
+  document.querySelectorAll(`#${prefix}-group-pills .group-pill`).forEach(p => {
+    p.classList.toggle("selected", p.dataset.group === group);
+  });
+}
+
+function addNewSymbol(prefix) {
+  const input = document.getElementById(`${prefix}-new-sym`);
+  const sym = input.value.trim().toLowerCase();
+  if (!sym) return;
+
+  const group = (prefix==="new" ? newSymGroup : editSymGroup) || "Custom";
+
+  if (!vocab.custom_symbols) vocab.custom_symbols = [];
+  if (!vocab.symbols) vocab.symbols = {...DEFAULT_GROUPS};
+
+  const allSyms = [...Object.values(vocab.symbols).flat(), ...vocab.custom_symbols];
+  if (!allSyms.includes(sym)) {
+    if (group === "Custom") {
+      vocab.custom_symbols.push(sym);
+    } else {
+      if (!vocab.symbols[group]) vocab.symbols[group] = [];
+      vocab.symbols[group].push(sym);
+    }
+  }
+
+  // Add pill to both panels
+  ["new","edit"].forEach(p => {
+    if (group === "Custom") {
+      const container = document.getElementById(`${p}-custom-pills`);
+      const grpEl = document.getElementById(`${p}-custom-group`);
+      if (grpEl) grpEl.style.display = "";
+      if (container && !container.querySelector(`[data-sym="${sym}"]`)) {
+        const pill = document.createElement("span");
+        pill.className = "sym-pill custom";
+        pill.dataset.sym = sym;
+        pill.textContent = sym;
+        pill.onclick = () => toggleSym(p, sym);
+        container.appendChild(pill);
+      }
+    } else {
+      // Find the group div
+      const groupDiv = document.querySelector(`#${p}-sym-groups .symbol-group[data-group="${group}"]`);
+      if (groupDiv) {
+        const pillsDiv = groupDiv.querySelector(".symbol-pills");
+        if (pillsDiv && !pillsDiv.querySelector(`[data-sym="${sym}"]`)) {
+          const pill = document.createElement("span");
+          pill.className = "sym-pill";
+          pill.dataset.sym = sym;
+          pill.textContent = sym;
+          pill.onclick = () => toggleSym(p, sym);
+          pillsDiv.appendChild(pill);
+        }
+      }
+    }
+  });
+
+  // Auto-activate for current panel
+  toggleSym(prefix, sym);
+
+  // Reset
+  input.value = "";
+  if (prefix==="new") newSymGroup=''; else editSymGroup='';
+  document.querySelectorAll(`#${prefix}-group-pills .group-pill`).forEach(p=>p.classList.remove("selected"));
+  saveVocabulary();
+}
+
+async function saveVocabulary() {
+  try {
+    let sha = null;
+    try { const existing = await ghGetFile("vocabulary.json"); sha = existing.sha; } catch(e) {}
+    await ghPutFile("vocabulary.json", JSON.stringify(vocab, null, 2), sha, "Update vocabulary");
+  } catch(e) {
+    console.warn("Vocabulary save failed:", e.message);
+  }
+}
+
+// ── Slug ──────────────────────────────────────────────────────
+function slugify(text) {
+  if (!text) return "";
+  const rep = {"à":"a","á":"a","â":"a","ä":"a","å":"a","è":"e","é":"e","ê":"e","ë":"e","ì":"i","í":"i","î":"i","ï":"i","ò":"o","ó":"o","ô":"o","ö":"o","ù":"u","ú":"u","û":"u","ü":"u","ý":"y","ñ":"n","ç":"c","ß":"ss","æ":"ae","ø":"o"};
+  let t = text.toLowerCase();
+  for (const [k,v] of Object.entries(rep)) t = t.split(k).join(v);
+  return t.replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").replace(/-+/g,"-");
+}
+const COUNTRY_ABBR = {"United States":"usa","United Kingdom":"uk","United Arab Emirates":"uae","New Zealand":"nz","South Africa":"sa"};
+
+function makeSlug(name, country, excludeIdx=-1) {
+  const base = slugify(name);
+  if (!base) return "";
+  const existing = clubs.filter((c,i)=>i!==excludeIdx && slugify(c.name)===base);
+  if (existing.length===0) return base;
+  const suffix = COUNTRY_ABBR[country] || slugify(country);
+  return suffix ? `${base}-${suffix}` : base;
+}
+
+function updateNewSlug() {
+  const name = document.getElementById("new-name").value.trim();
+  const country = document.getElementById("new-country").value.trim();
+  const ext = document.getElementById("new-img-ext").value;
+  const slug = makeSlug(name, country);
+  document.getElementById("new-slug").value = slug;
+  document.getElementById("new-image-preview").textContent = slug ? `${slug}${ext}` : "—";
+}
+
+function updateEditSlug() {
+  const idx = parseInt(document.getElementById("edit-index").value);
+  const name = document.getElementById("edit-name").value.trim();
+  const country = document.getElementById("edit-country").value.trim();
+  const slug = makeSlug(name, country, idx);
+  document.getElementById("edit-slug").value = slug;
+}
+
+// ── Section toggle ────────────────────────────────────────────
+function toggleSection(h3) {
+  h3.classList.toggle("collapsed");
+  h3.nextElementSibling.classList.toggle("hidden");
+}
+
+// ── Render table ──────────────────────────────────────────────
+let tableFilter = 'all';
+
+function setFilter(f) {
+  tableFilter = f;
+  ['all','untagged','new'].forEach(id => {
+    const btn = document.getElementById(`filter-${id}`);
+    const active = f === id;
+    btn.style.background = active ? 'var(--accent)' : 'var(--white)';
+    btn.style.color = active ? 'var(--navy)' : 'var(--muted)';
+    btn.style.borderColor = active ? 'var(--accent)' : 'var(--border)';
+  });
+  renderTable();
+}
+
+function renderTable() {
+  const q = document.getElementById("table-search").value.toLowerCase();
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 7);
+  const cutoffStr = cutoff.toISOString().substring(0,10);
+
+  let filtered = clubs;
+  if (tableFilter === 'untagged') filtered = clubs.filter(c => !c.color_primary);
+  else if (tableFilter === 'new') filtered = clubs.filter(c => c.date_added && c.date_added >= cutoffStr);
+  if (q) filtered = filtered.filter(c=>c.name.toLowerCase().includes(q)||(c.country||"").toLowerCase().includes(q));
+
+  document.getElementById("table-count").textContent = `(${filtered.length.toLocaleString()} of ${clubs.length.toLocaleString()})`;
+  if (!filtered.length) {
+    document.getElementById("club-tbody").innerHTML = '<tr><td colspan="7" class="no-results">No clubs match.</td></tr>';
+    return;
+  }
+  document.getElementById("club-tbody").innerHTML = filtered.map(c => {
+    const realIdx = clubs.indexOf(c);
+    const imgSrc = c.burgee_local ? `https://burgeeregister.org/burgees_data/${c.burgee_local}` : "";
+    const flagHTML = imgSrc ? `<img src="${esc(imgSrc)}" onerror="this.parentNode.textContent='🚩'" />` : "🚩";
+    const tagged = c.color_primary ? `<span style="color:var(--green)">✓</span>` : `<span style="color:#ccc">—</span>`;
+    const dateAdded = c.date_added ? `<span style="font-size:0.75rem;color:var(--muted)">${c.date_added}</span>` : `<span style="color:#ccc">—</span>`;
+    return `<tr>
+      <td class="flag-cell"><div class="flag-thumb">${flagHTML}</div></td>
+      <td class="name-cell">${esc(c.name)}</td>
+      <td class="loc-cell">${esc(c.country||"")}</td>
+      <td class="url-cell">${c.website?`<a href="${esc(c.website)}" target="_blank" rel="noopener">Visit ↗</a>`:""}</td>
+      <td class="img-cell">${esc(c.slug||"")}</td>
+      <td style="text-align:center">${tagged}</td>
+      <td style="text-align:center">${dateAdded}</td>
+      <td class="action-cell">
+        <button class="btn btn-edit" onclick="openEdit(${realIdx})">✏ Edit</button>
+        <button class="btn btn-red" onclick="deleteClub(${realIdx})">✕</button>
+      </td>
+    </tr>`;
+  }).join("");
+}
+
+// ── Add club ──────────────────────────────────────────────────
+function collectNewTags() {
+  newTags.tag_notes = document.getElementById("new-tag-notes")?.value.trim() || "";
+}
+
+async function addClub() {
+  const name = document.getElementById("new-name").value.trim();
+  if (!name) { showMsg("add-msg","Club name is required.","err"); return; }
+  collectNewTags();
+  const country = document.getElementById("new-country").value.trim();
+  const ext = document.getElementById("new-img-ext").value;
+  const slug = document.getElementById("new-slug").value || makeSlug(name, country);
+  clubs.push({
+    name, slug,
+    website:       document.getElementById("new-website").value.trim(),
+    country,
+    city:          document.getElementById("new-city").value.trim(),
+    region:        normalizeRegion(document.getElementById("new-region").value.trim(), country),
+    contact_name:  document.getElementById("new-contact-name").value.trim(),
+    contact_email: document.getElementById("new-contact-email").value.trim(),
+    year_founded:  document.getElementById("new-year-founded").value ? parseInt(document.getElementById("new-year-founded").value) : undefined,
+    burgee_local:  slug ? `images/${slug}${ext}` : "",
+    date_added:    todayISO(),
+    ...newTags,
+  });
+  ["new-name","new-year-founded","new-website","new-country","new-city","new-region","new-contact-name","new-contact-email","new-slug"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("new-image-preview").textContent="—";
+  newTags = {color_primary:'',color_secondary:'',color_tertiary:'',burgee_shape:'',symbols:'',has_border:'no',organization:'',tag_notes:''};
+  buildTagPanel("new-tag-panel", newTags, "new");
+  updateStats(); renderTable();
+  showMsg("add-msg",`✓ "${name}" added!`,"ok");
+
+  // Push to GitHub
+  const newClub = clubs[clubs.length - 1];
+  const addPath = `clubs/${newClub.slug}.json`;
+  try {
+    await ghPutFile(addPath, JSON.stringify(newClub, null, 2), null, `Add ${newClub.name}`);
+    showMsg("add-msg",`✓ "${name}" added and saved to GitHub!`,"ok");
+  } catch(e) {
+    showMsg("add-msg",`✓ Added locally but GitHub failed: ${e.message}`,"err");
+  }
+}
+
+// ── Delete ────────────────────────────────────────────────────
+async function deleteClub(idx) {
+  const club = clubs[idx];
+  if (!confirm(`Delete "${club.name}"?`)) return;
+  clubs.splice(idx,1); updateStats(); renderTable();
+
+  // Delete from GitHub
+  try {
+    const path = `clubs/${club.slug}.json`;
+    const { sha } = await ghGetFile(path);
+    await ghDeleteFile(path, sha, `Delete ${club.name}`);
+    showMsg("table-msg", `✓ "${club.name}" deleted from GitHub`, "ok");
+  } catch(e) {
+    showMsg("table-msg", `⚠ Deleted locally but GitHub failed: ${e.message}`, "err");
+  }
+}
+
+// ── Edit modal ────────────────────────────────────────────────
+function openEdit(idx) {
+  const c = clubs[idx];
+  document.getElementById("edit-index").value         = idx;
+  document.getElementById("edit-name").value          = c.name||"";
+  document.getElementById("edit-website").value       = c.website||"";
+  document.getElementById("edit-country").value       = c.country||"";
+  document.getElementById("edit-city").value          = c.city||"";
+  document.getElementById("edit-region").value        = c.region||"";
+  document.getElementById("edit-contact-name").value  = c.contact_name||"";
+  document.getElementById("edit-contact-email").value = c.contact_email||"";
+  document.getElementById("edit-year-founded").value  = c.year_founded||"";
+  document.getElementById("edit-image").value         = (c.burgee_local||"").replace("images/","");
+  document.getElementById("edit-slug").value          = c.slug||"";
+  updateEditImage();
+  editTags = {
+    color_primary:   c.color_primary||"",
+    color_secondary: c.color_secondary||"",
+    color_tertiary:  c.color_tertiary||"",
+    burgee_shape:    c.burgee_shape||"",
+    symbols:         c.symbols||"",
+    has_border:      c.has_border||"no",
+    organization:    c.organization||"",
+    tag_notes:       c.tag_notes||"",
+  };
+  buildTagPanel("edit-tag-panel", editTags, "edit");
+  document.getElementById("edit-modal").classList.add("open");
+}
+
+function updateEditImage() {
+  const filename = document.getElementById("edit-image").value.trim();
+  const img = document.getElementById("edit-burgee-img");
+  const placeholder = document.getElementById("edit-burgee-placeholder");
+  if (filename) {
+    img.src = `https://burgeeregister.org/burgees_data/images/${filename}`;
+    img.style.display = "block";
+    placeholder.style.display = "none";
+    img.onerror = () => { img.style.display="none"; placeholder.style.display=""; placeholder.textContent="Image not found"; };
+  } else {
+    img.style.display = "none";
+    placeholder.style.display = "";
+    placeholder.textContent = "No image";
+  }
+}
+
+function closeModal() { document.getElementById("edit-modal").classList.remove("open"); }
+
+function collectEditTags() {
+  editTags.tag_notes = document.getElementById("edit-tag-notes")?.value.trim() || "";
+}
+
+async function saveEdit() {
+  collectEditTags();
+  const idx     = parseInt(document.getElementById("edit-index").value);
+  showMsg("table-msg", "⏳ Saving to GitHub...", "ok", false);
+  const imgFile = document.getElementById("edit-image").value.trim();
+  const country = document.getElementById("edit-country").value.trim();
+  const oldSlug = clubs[idx].slug;
+  const updated = {
+    ...clubs[idx],
+    name:          document.getElementById("edit-name").value.trim(),
+    slug:          document.getElementById("edit-slug").value.trim(),
+    website:       document.getElementById("edit-website").value.trim(),
+    country,
+    city:          document.getElementById("edit-city").value.trim(),
+    region:        normalizeRegion(document.getElementById("edit-region").value.trim(), country),
+    contact_name:  document.getElementById("edit-contact-name").value.trim(),
+    contact_email: document.getElementById("edit-contact-email").value.trim(),
+    year_founded:  document.getElementById("edit-year-founded").value ? parseInt(document.getElementById("edit-year-founded").value) : undefined,
+    burgee_local:  imgFile ? `images/${imgFile}` : "",
+    ...editTags,
+  };
+  clubs[idx] = updated;
+  closeModal(); updateStats(); renderTable();
+
+  // Push to GitHub
+  try {
+    const path = `clubs/${updated.slug}.json`;
+    let sha = null;
+    try { const existing = await ghGetFile(path); sha = existing.sha; } catch(e) {}
+    await ghPutFile(path, JSON.stringify(updated, null, 2), sha, `Update ${updated.name}`);
+    // If slug changed, delete old file
+    if (oldSlug && oldSlug !== updated.slug) {
+      try {
+        const old = await ghGetFile(`clubs/${oldSlug}.json`);
+        await ghDeleteFile(`clubs/${oldSlug}.json`, old.sha, `Remove old slug ${oldSlug}`);
+      } catch(e) {}
+    }
+    showMsg("table-msg", `✓ Saved "${updated.name}" to GitHub`, "ok");
+  } catch(e) {
+    showMsg("table-msg", `⚠ Saved locally but GitHub failed: ${e.message}`, "err");
+  }
+}
+
+document.getElementById("edit-modal").addEventListener("click", function(e){ if(e.target===this) closeModal(); });
+
+// ── CSV ───────────────────────────────────────────────────────
+function csvDragOver(e){e.preventDefault();document.getElementById("csv-drop").classList.add("dragover");}
+function csvDragLeave(e){document.getElementById("csv-drop").classList.remove("dragover");}
+function csvDrop(e){e.preventDefault();document.getElementById("csv-drop").classList.remove("dragover");parseCSV(e.dataTransfer.files[0]);}
+function csvFileSelected(e){if(e.target.files[0]) parseCSV(e.target.files[0]);}
+
+function parseCSV(file) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const lines = e.target.result.split(/\r?\n/).filter(l=>l.trim());
+    if (lines.length<2){showMsg("csv-msg","CSV appears empty.","err");return;}
+    const headers = lines[0].split(",").map(h=>h.trim().replace(/^"|"$/g,""));
+    csvRows = lines.slice(1).map(line=>{
+      const vals = line.split(",").map(v=>v.trim().replace(/^"|"$/g,""));
+      const obj={};
+      headers.forEach((h,i)=>obj[h]=vals[i]||"");
+      return obj;
+    }).filter(r=>r["Club Name"]||r["name"]);
+
+    // Build rename data
+    csvRenameData = csvRows.map(r=>{
+      const name = r["Club Name"]||r["name"]||"";
+      const country = r["Country"]||r["country"]||"";
+      const originalImg = r["Image File"]||r["image_file"]||"";
+      const slug = makeSlug(name, country);
+      const ext = originalImg ? "."+originalImg.split(".").pop() : ".png";
+      return {name, originalImg, newImg: slug ? `${slug}${ext}` : ""};
+    });
+
+    // Preview table
+    document.getElementById("csv-preview").innerHTML = `<table>
+      <thead><tr>${headers.map(h=>`<th>${esc(h)}</th>`).join("")}</tr></thead>
+      <tbody>${csvRows.slice(0,10).map(r=>`<tr>${headers.map(h=>`<td>${esc(r[h]||"")}</td>`).join("")}</tr>`).join("")}</tbody>
+    </table>${csvRows.length>10?`<p style="color:var(--muted);font-size:0.82rem;margin-top:6px;">…and ${csvRows.length-10} more rows</p>`:""}`;
+
+    // Rename list
+    const renameTbody = document.getElementById("rename-tbody");
+    renameTbody.innerHTML = csvRenameData.map(r=>`<tr>
+      <td>${esc(r.originalImg||"(not provided)")}</td>
+      <td class="arrow">→</td>
+      <td><strong>${esc(r.newImg)}</strong></td>
+    </tr>`).join("");
+    document.getElementById("csv-rename").style.display = "";
+
+    document.getElementById("csv-count").textContent = csvRows.length;
+    document.getElementById("csv-actions").style.display = "flex";
+  };
+  reader.readAsText(file);
+}
+
+function downloadRenameList() {
+  const lines = ["Original filename,Rename to", ...csvRenameData.map(r=>`${r.originalImg||"(not provided)"},${r.newImg}`)];
+  const blob = new Blob([lines.join("\n")],{type:"text/csv"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download="image_rename_list.csv"; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importCSV() {
+  let added=0;
+  csvRows.forEach((r,i)=>{
+    const name = r["Club Name"]||r["name"]||"";
+    if(!name) return;
+    const country = r["Country"]||r["country"]||"";
+    const slug = csvRenameData[i]?.newImg.replace(/\.[^.]+$/,"") || makeSlug(name,country);
+    const newImg = csvRenameData[i]?.newImg||"";
+    clubs.push({
+      name, slug,
+      website:       r["Website"]||r["website"]||"",
+      country,
+      city:          r["City"]||r["city"]||"",
+      region:        normalizeRegion(r["State / Province / Region"]||r["Region"]||r["region"]||"",country),
+      contact_name:  r["Contact Name"]||r["contact_name"]||"",
+      contact_email: r["Contact Email"]||r["contact_email"]||"",
+      year_founded:  r["Year Founded"] ? parseInt(r["Year Founded"]) : undefined,
+      burgee_local:  newImg ? `images/${newImg}` : "",
+      date_added:    todayISO(),
+    });
+    added++;
+  });
+  clearCSV(); updateStats(); renderTable();
+  showMsg("add-msg",`✓ Imported ${added} clubs from CSV`,"ok");
+}
+
+function clearCSV() {
+  csvRows=[]; csvRenameData=[];
+  document.getElementById("csv-preview").innerHTML="";
+  document.getElementById("csv-rename").style.display="none";
+  document.getElementById("csv-actions").style.display="none";
+  document.getElementById("csv-file").value="";
+}
+
+// ── Export ────────────────────────────────────────────────────
+const PRIVATE_FIELDS = ["contact_name","contact_email","tag_notes","date_added"];
+
+function todayISO() {
+  return new Date().toISOString().substring(0, 10); // YYYY-MM-DD
+}
+
+function exportAll() {
+  const ts = new Date().toISOString().replace("T","_").replace(/:/g,"-").substring(0,16);
+  downloadJSON(clubs,"clubs_full.json");
+  const pub = clubs.map(c=>{const p={...c};PRIVATE_FIELDS.forEach(f=>delete p[f]);return p;});
+  setTimeout(()=>downloadJSON(pub,"clubs.json"),400);
+  setTimeout(()=>exportXLSX(ts),800);
+}
+
+function downloadJSON(data,filename) {
+  const blob = new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement("a");
+  a.href=url; a.download=filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportXLSX(ts) {
+  if (!ts) ts = new Date().toISOString().replace("T","_").replace(/:/g,"-").substring(0,16);
+  const sorted = [...clubs].sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+  const noWebsite  = sorted.filter(c=>!c.website).length;
+  const withCity   = sorted.filter(c=>c.city).length;
+  const withRegion = sorted.filter(c=>c.region).length;
+  const countries  = new Set(sorted.map(c=>c.country).filter(Boolean)).size;
+  const today      = new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});
+
+  const rows = [
+    [`Global Burgee Register — Club Directory  (${sorted.length} clubs)`],
+    [`Generated ${today} · burgeeregister.org     |     Total: ${sorted.length}     |     No Website: ${noWebsite}     |     With City: ${withCity}     |     With Region: ${withRegion}     |     Countries: ${countries}`],
+    ["#","Club Name","City","State / Province / Region","Country","Year Founded","Contact Name","Contact Email","Website","Image File","Slug","color_primary","color_secondary","color_tertiary","burgee_shape","symbols","has_border"],
+    ...sorted.map((c,i)=>[
+      i+1, c.name||"", c.city||"", c.region||"", c.country||"", c.year_founded||"",
+      c.contact_name||"", c.contact_email||"", c.website||"",
+      (c.burgee_local||"").replace("images/","").replace("images\\",""),
+      c.slug||"", c.color_primary||"", c.color_secondary||"", c.color_tertiary||"",
+      c.burgee_shape||"", c.symbols||"", c.has_border||"",
+    ])
+  ];
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:24},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10}];
+  XLSX.utils.book_append_sheet(wb, ws, "Club Directory");
+  XLSX.writeFile(wb, `club_directory_${ts}.xlsx`);
+}
+
+// ── Region normalizer ─────────────────────────────────────────
+const REGION_MAP = {"alabama":"AL","alaska":"AK","arizona":"AZ","arkansas":"AR","california":"CA","colorado":"CO","connecticut":"CT","delaware":"DE","florida":"FL","georgia":"GA","hawaii":"HI","idaho":"ID","illinois":"IL","indiana":"IN","iowa":"IA","kansas":"KS","kentucky":"KY","louisiana":"LA","maine":"ME","maryland":"MD","massachusetts":"MA","michigan":"MI","minnesota":"MN","mississippi":"MS","missouri":"MO","montana":"MT","nebraska":"NE","nevada":"NV","new hampshire":"NH","new jersey":"NJ","new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND","ohio":"OH","oklahoma":"OK","oregon":"OR","pennsylvania":"PA","rhode island":"RI","south carolina":"SC","south dakota":"SD","tennessee":"TN","texas":"TX","utah":"UT","vermont":"VT","virginia":"VA","washington":"WA","west virginia":"WV","wisconsin":"WI","wyoming":"WY","district of columbia":"DC","washington dc":"DC","puerto rico":"PR","guam":"GU","alberta":"AB","british columbia":"BC","manitoba":"MB","new brunswick":"NB","newfoundland":"NL","newfoundland and labrador":"NL","nova scotia":"NS","ontario":"ON","prince edward island":"PE","quebec":"QC","québec":"QC","saskatchewan":"SK","northwest territories":"NT","nunavut":"NU","yukon":"YT","new south wales":"NSW","victoria":"VIC","queensland":"QLD","south australia":"SA","western australia":"WA","tasmania":"TAS","northern territory":"NT","australian capital territory":"ACT"};
+
+function normalizeRegion(region, country) {
+  if (!region) return region;
+  const c = (country||"").toLowerCase();
+  if (!c.includes("united states")&&!c.includes("canada")&&!c.includes("australia")) return region;
+  return REGION_MAP[region.trim().toLowerCase()] || region.trim().toUpperCase();
+}
+
+async function deployToServer() {
+  if (!confirm("Deploy all changes to the live server? This will trigger the GitHub Action.")) return;
+  showMsg("table-msg", "⏳ Deploying…", "ok", false);
+  try {
+    const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/actions/workflows/build_and_deploy.yml/dispatches`;
+    const r = await fetch(url, {
+      method: "POST",
+      headers: ghHeaders(),
+      body: JSON.stringify({ ref: "master" }),
+    });
+    if (r.status === 204) {
+      showMsg("table-msg", "✓ Deploy triggered — changes will be live in ~1 minute", "ok");
+    } else {
+      const err = await r.json();
+      showMsg("table-msg", `⚠ Deploy failed: ${err.message}`, "err");
+    }
+  } catch(e) {
+    showMsg("table-msg", `⚠ Deploy error: ${e.message}`, "err");
+  }
+}
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+function showMsg(id,text,type,autoClear=true){const el=document.getElementById(id);el.textContent=text;el.className=`msg ${type}`;if(autoClear)setTimeout(()=>{el.textContent="";},5000);}
+
+function toggleHero(btn) {
+  const body = document.getElementById("hero-body");
+  const arrow = document.getElementById("hero-arrow");
+  const hidden = body.style.display === "none";
+  body.style.display = hidden ? "block" : "none";
+  arrow.textContent = hidden ? "▼" : "▶";
+}
+
+// loadData() is called after PAT login
+</script>
+
+<!-- LOGIN OVERLAY -->
+<div id="login-overlay" style="display:none;position:fixed;inset:0;background:rgba(10,22,40,0.97);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="background:#112240;border:1px solid #c8973a;border-radius:14px;padding:40px 48px;max-width:420px;width:90%;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:8px;">🔒</div>
+    <h2 style="font-family:'Playfair Display',serif;color:#c8973a;font-size:1.4rem;margin-bottom:6px;">GBR Admin</h2>
+    <p style="color:rgba(255,255,255,0.6);font-size:0.88rem;margin-bottom:24px;">Enter your GitHub Personal Access Token to continue</p>
+    <input id="pat-input" type="password"
+      style="width:100%;padding:11px 14px;border-radius:8px;border:1px solid #c8973a;background:#0a1628;color:white;font-size:0.95rem;font-family:monospace;outline:none;margin-bottom:14px;"
+      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" />
+    <button onclick="submitPAT()"
+      style="width:100%;padding:11px;background:#c8973a;color:#0a1628;border:none;border-radius:8px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;">
+      Unlock Admin
+    </button>
+  </div>
+</div>
+
+</body>
+</html>
