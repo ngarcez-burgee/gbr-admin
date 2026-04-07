@@ -487,7 +487,7 @@ function ghHeaders() {
 }
 
 async function ghGetFile(path) {
-  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}`;
+  const url = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${path}?t=${Date.now()}`;
   const r = await fetch(url, { headers: ghHeaders() });
   if (!r.ok) throw new Error(`GitHub GET failed: ${path} (${r.status})`);
   const data = await r.json();
