@@ -557,14 +557,14 @@ const DEFAULT_GROUPS = {
 async function loadData() {
   document.getElementById("club-tbody").innerHTML = '<tr><td colspan="7" class="no-results">Loading from GitHub…</td></tr>';
   try {
-    const { content } = await ghGetFile("burgees_data/clubs_full.json");
+    const { content } = await ghGetFile("clubs_full.json");
     clubs = JSON.parse(content);
   } catch(e) {
     clubs = [];
     document.getElementById("club-tbody").innerHTML = `<tr><td colspan="7" class="no-results">⚠ Could not load clubs_full.json: ${e.message}</td></tr>`;
   }
   try {
-    const { content } = await ghGetFile("burgees_data/vocabulary.json");
+    const { content } = await ghGetFile("vocabulary.json");
     vocab = JSON.parse(content);
   } catch(e) { vocab = {}; }
 
@@ -785,8 +785,8 @@ function addNewSymbol(prefix) {
 async function saveVocabulary() {
   try {
     let sha = null;
-    try { const existing = await ghGetFile("burgees_data/vocabulary.json"); sha = existing.sha; } catch(e) {}
-    await ghPutFile("burgees_data/vocabulary.json", JSON.stringify(vocab, null, 2), sha, "Update vocabulary");
+    try { const existing = await ghGetFile("vocabulary.json"); sha = existing.sha; } catch(e) {}
+    await ghPutFile("vocabulary.json", JSON.stringify(vocab, null, 2), sha, "Update vocabulary");
   } catch(e) {
     console.warn("Vocabulary save failed:", e.message);
   }
@@ -866,7 +866,7 @@ function renderTable() {
   }
   document.getElementById("club-tbody").innerHTML = filtered.map(c => {
     const realIdx = clubs.indexOf(c);
-    const imgSrc = c.burgee_local ? `burgees_data/${c.burgee_local}` : "";
+    const imgSrc = c.burgee_local ? `https://burgeeregister.org/burgees_data/${c.burgee_local}` : "";
     const flagHTML = imgSrc ? `<img src="${esc(imgSrc)}" onerror="this.parentNode.textContent='🚩'" />` : "🚩";
     const tagged = c.color_primary ? `<span style="color:var(--green)">✓</span>` : `<span style="color:#ccc">—</span>`;
     const dateAdded = c.date_added ? `<span style="font-size:0.75rem;color:var(--muted)">${c.date_added}</span>` : `<span style="color:#ccc">—</span>`;
@@ -920,7 +920,7 @@ async function addClub() {
 
   // Push to GitHub
   const newClub = clubs[clubs.length - 1];
-  const addPath = `burgees_data/clubs/${newClub.slug}.json`;
+  const addPath = `clubs/${newClub.slug}.json`;
   try {
     await ghPutFile(addPath, JSON.stringify(newClub, null, 2), null, `Add ${newClub.name}`);
     showMsg("add-msg",`✓ "${name}" added and saved to GitHub!`,"ok");
@@ -937,7 +937,7 @@ async function deleteClub(idx) {
 
   // Delete from GitHub
   try {
-    const path = `burgees_data/clubs/${club.slug}.json`;
+    const path = `clubs/${club.slug}.json`;
     const { sha } = await ghGetFile(path);
     await ghDeleteFile(path, sha, `Delete ${club.name}`);
     showMsg("table-msg", `✓ "${club.name}" deleted from GitHub`, "ok");
@@ -979,7 +979,7 @@ function updateEditImage() {
   const img = document.getElementById("edit-burgee-img");
   const placeholder = document.getElementById("edit-burgee-placeholder");
   if (filename) {
-    img.src = `burgees_data/images/${filename}`;
+    img.src = `https://burgeeregister.org/burgees_data/${filename}`;
     img.style.display = "block";
     placeholder.style.display = "none";
     img.onerror = () => { img.style.display="none"; placeholder.style.display=""; placeholder.textContent="Image not found"; };
@@ -1022,7 +1022,7 @@ async function saveEdit() {
 
   // Push to GitHub
   try {
-    const path = `burgees_data/clubs/${updated.slug}.json`;
+    const path = `clubs/${updated.slug}.json`;
     let sha = null;
     try { const existing = await ghGetFile(path); sha = existing.sha; } catch(e) {}
     await ghPutFile(path, JSON.stringify(updated, null, 2), sha, `Update ${updated.name}`);
@@ -1030,7 +1030,7 @@ async function saveEdit() {
     if (oldSlug && oldSlug !== updated.slug) {
       try {
         const old = await ghGetFile(`clubs/${oldSlug}.json`);
-        await ghDeleteFile(`burgees_data/clubs/${oldSlug}.json`, old.sha, `Remove old slug ${oldSlug}`);
+        await ghDeleteFile(`clubs/${oldSlug}.json`, old.sha, `Remove old slug ${oldSlug}`);
       } catch(e) {}
     }
     showMsg("table-msg", `✓ Saved "${updated.name}" to GitHub`, "ok");
