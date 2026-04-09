@@ -316,7 +316,7 @@
             </div>
             <div class="form-group">
               <label>Contact Email</label>
-              <input type="email" id="new-contact-email" data-lpignore="true" data-1p-ignore placeholder="your@email.com" />
+              <div contenteditable="true" id="new-contact-email" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:0.92rem;color:var(--text);background:var(--cream);min-height:38px;outline:none;" onblur="if(!this.textContent.trim())this.style.color='var(--muted)';else this.style.color='var(--text)';" onfocus="this.style.color='var(--text)';" data-placeholder="your@email.com"></div>
             </div>
           </div>
         </div>
@@ -434,7 +434,7 @@
           </div>
           <div class="form-group">
             <label>Contact Email</label>
-            <input type="text" id="edit-contact-email" data-lpignore="true" data-form-type="other" autocomplete="off" placeholder="your@email.com" />
+            <div contenteditable="true" id="edit-contact-email" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:0.92rem;color:var(--text);background:var(--cream);min-height:38px;outline:none;" onblur="if(!this.textContent.trim())this.style.color='var(--muted)';else this.style.color='var(--text)';" onfocus="this.style.color='var(--text)';" data-placeholder="your@email.com"></div>
           </div>
           <div class="form-group full">
             <label>Image File</label>
@@ -943,13 +943,14 @@ async function addClub() {
     contact_first: document.getElementById("new-contact-first").value.trim(),
     contact_last:  document.getElementById("new-contact-last").value.trim(),
     contact_name:  [document.getElementById("new-contact-first").value.trim(), document.getElementById("new-contact-last").value.trim()].filter(Boolean).join(" "),
-    contact_email: document.getElementById("new-contact-email").value.trim(),
+    contact_email: document.getElementById("new-contact-email").textContent.trim(),
     year_founded:  document.getElementById("new-year-founded").value ? parseInt(document.getElementById("new-year-founded").value) : undefined,
     burgee_local:  slug ? `images/${slug}${ext}` : "",
     date_added:    todayISO(),
     ...newTags,
   });
-  ["new-name","new-year-founded","new-website","new-country","new-city","new-region","new-contact-first","new-contact-last","new-contact-email","new-slug"].forEach(id=>document.getElementById(id).value="");
+  ["new-name","new-year-founded","new-website","new-country","new-city","new-region","new-contact-first","new-contact-last","new-slug"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("new-contact-email").textContent = "";
   document.getElementById("new-image-preview").textContent="—";
   newTags = {color_primary:'',color_secondary:'',color_tertiary:'',burgee_shape:'',symbols:'',has_border:'no',organization:'',tag_notes:''};
   buildTagPanel("new-tag-panel", newTags, "new");
@@ -998,7 +999,7 @@ function openEdit(idx) {
   document.getElementById("edit-region").value        = c.region||"";
   document.getElementById("edit-contact-first").value = c.contact_first||"";
   document.getElementById("edit-contact-last").value  = c.contact_last||"";
-  document.getElementById("edit-contact-email").value = c.contact_email||"";
+  document.getElementById("edit-contact-email").textContent = c.contact_email||"";
   document.getElementById("edit-year-founded").value  = c.year_founded||"";
   document.getElementById("edit-image").value         = (c.burgee_local||"").replace("images/","");
   document.getElementById("edit-slug").value          = c.slug||"";
@@ -1057,7 +1058,7 @@ async function saveEdit() {
     contact_first: document.getElementById("edit-contact-first").value.trim(),
     contact_last:  document.getElementById("edit-contact-last").value.trim(),
     contact_name:  [document.getElementById("edit-contact-first").value.trim(), document.getElementById("edit-contact-last").value.trim()].filter(Boolean).join(" "),
-    contact_email: document.getElementById("edit-contact-email").value.trim(),
+    contact_email: document.getElementById("edit-contact-email").textContent.trim(),
     year_founded:  document.getElementById("edit-year-founded").value ? parseInt(document.getElementById("edit-year-founded").value) : undefined,
     burgee_local:  imgFile ? `images/${imgFile}` : "",
     ...editTags,
