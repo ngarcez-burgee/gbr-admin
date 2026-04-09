@@ -1227,7 +1227,7 @@ function exportXLSX(ts) {
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:24},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10}];
+  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:20},{wch:20},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws, "Club Directory");
   XLSX.writeFile(wb, `club_directory_${ts}.xlsx`);
 }
