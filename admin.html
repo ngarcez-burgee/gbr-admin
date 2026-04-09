@@ -196,8 +196,14 @@
     .export-bar p{color:rgba(255,255,255,0.7);font-size:0.9rem;}
     .export-bar strong{color:var(--accent);}
 
-    @media(max-width:700px){.hero-inner,.form-grid,.modal-body{grid-template-columns:1fr;}}
-  </style>
+   @media(max-width:700px){.hero-inner,.form-grid,.modal-body{grid-template-columns:1fr;}}
+
+   [contenteditable][data-placeholder]:empty::before {
+     content: attr(data-placeholder);
+     color: var(--muted);
+     pointer-events: none;
+   }
+ </style>
 </head>
 <body>
 
