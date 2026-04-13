@@ -1198,7 +1198,7 @@ function todayISO() {
 
 function exportAll() {
   const now = new Date();
-  const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}-${String(now.getMinutes()).padStart(2,'0')}`;
+  const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
   downloadJSON(clubs,"clubs_full.json");
   const pub = clubs.map(c=>{const p={...c};PRIVATE_FIELDS.forEach(f=>delete p[f]);return p;});
   setTimeout(()=>downloadJSON(pub,"clubs.json"),400);
