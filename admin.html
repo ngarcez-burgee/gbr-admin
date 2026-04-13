@@ -1214,7 +1214,6 @@ function downloadJSON(data,filename) {
 }
 
 function exportXLSX(ts) {
-  if (!ts) ts = new Date().toISOString().replace("T","_").replace(/:/g,"-").substring(0,16);
   const sorted = [...clubs].sort((a,b)=>(a.name||"").localeCompare(b.name||""));
   const noWebsite  = sorted.filter(c=>!c.website).length;
   const withCity   = sorted.filter(c=>c.city).length;
