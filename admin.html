@@ -1224,19 +1224,19 @@ function exportXLSX(ts) {
   const rows = [
     [`Global Burgee Register — Club Directory  (${sorted.length} clubs)`],
     [`Generated ${today} · burgeeregister.org     |     Total: ${sorted.length}     |     No Website: ${noWebsite}     |     With City: ${withCity}     |     With Region: ${withRegion}     |     Countries: ${countries}`],
-    ["#","Club Name","City","State / Province / Region","Country","Year Founded","Contact First","Contact Last","Contact Email","Website","Image File","Slug","color_primary","color_secondary","color_tertiary","burgee_shape","symbols","has_border","reviewed"],
+    ["#","Club Name","City","State / Province / Region","Country","Year Founded","Contact First","Contact Last","Contact Email","Website","Image File","Slug","color_primary","color_secondary","color_tertiary","burgee_shape","symbols","has_border"],
     ...sorted.map((c,i)=>[
       i+1, c.name||"", c.city||"", c.region||"", c.country||"", c.year_founded||"",
       c.contact_first||"", c.contact_last||"", c.contact_email||"", c.website||"",
       (c.burgee_local||"").replace("images/","").replace("images\\",""),
       c.slug||"", c.color_primary||"", c.color_secondary||"", c.color_tertiary||"",
-      c.burgee_shape||"", c.symbols||"", c.has_border||"", c.reviewed||"",
+      c.burgee_shape||"", c.symbols||"", c.has_border||"",
     ])
   ];
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:20},{wch:20},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10},{wch:10}];
+  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:20},{wch:20},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws, "Club Directory");
   XLSX.writeFile(wb, `club_directory_${ts}.xlsx`);
 }
