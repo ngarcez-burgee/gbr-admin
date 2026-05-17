@@ -2,9 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-  <meta http-equiv="Pragma" content="no-cache">
-  <meta http-equiv="Expires" content="0"> 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>GBR Admin Panel</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -199,14 +196,8 @@
     .export-bar p{color:rgba(255,255,255,0.7);font-size:0.9rem;}
     .export-bar strong{color:var(--accent);}
 
-   @media(max-width:700px){.hero-inner,.form-grid,.modal-body{grid-template-columns:1fr;}}
-
-   [contenteditable][data-placeholder]:empty::before {
-     content: attr(data-placeholder);
-     color: var(--muted);
-     pointer-events: none;
-   }
- </style>
+    @media(max-width:700px){.hero-inner,.form-grid,.modal-body{grid-template-columns:1fr;}}
+  </style>
 </head>
 <body>
 
@@ -286,8 +277,8 @@
               <input type="text" id="new-country" placeholder="e.g. United States" oninput="updateNewSlug()" />
             </div>
             <div class="form-group full">
-              <label>Slug (auto-generated)</label>
-              <input type="text" id="new-slug" readonly />
+              <label>Slug (auto-generated — edit if needed)</label>
+              <input type="text" id="new-slug" oninput="updateImagePreview()" />
               <div class="slug-display">Save image as: <span id="new-image-preview">—</span></div>
             </div>
             <div class="form-group">
@@ -317,15 +308,15 @@
             </div>
             <div class="form-group">
               <label>Contact First Name</label>
-              <input type="text" id="new-contact-first" placeholder="First name" autocomplete="off" data-lpignore="true" data-1p-ignore />
+              <input type="text" id="new-contact-first" placeholder="First name" />
             </div>
             <div class="form-group">
               <label>Contact Last Name</label>
-              <input type="text" id="new-contact-last" placeholder="Last name" autocomplete="off" data-lpignore="true" data-1p-ignore />
+              <input type="text" id="new-contact-last" placeholder="Last name" />
             </div>
             <div class="form-group">
               <label>Contact Email</label>
-              <div contenteditable="true" id="new-contact-email" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:0.92rem;color:var(--text);background:var(--cream);min-height:38px;outline:none;" onblur="if(!this.textContent.trim())this.style.color='var(--muted)';else this.style.color='var(--text)';" onfocus="this.style.color='var(--text)';" data-placeholder="your@email.com"></div>
+              <input type="email" id="new-contact-email" />
             </div>
           </div>
         </div>
@@ -443,7 +434,7 @@
           </div>
           <div class="form-group">
             <label>Contact Email</label>
-            <div contenteditable="true" id="edit-contact-email" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-family:'Source Sans 3',sans-serif;font-size:0.92rem;color:var(--text);background:var(--cream);min-height:38px;outline:none;" onblur="if(!this.textContent.trim())this.style.color='var(--muted)';else this.style.color='var(--text)';" onfocus="this.style.color='var(--text)';" data-placeholder="your@email.com"></div>
+            <input type="email" id="edit-contact-email" />
           </div>
           <div class="form-group full">
             <label>Image File</label>
@@ -473,8 +464,9 @@
 const GH_OWNER = "ngarcez-burgee";
 const GH_REPO  = "gbr-data";
 let GH_PAT = "";
-let pendingEmails = [];
 
+const RESEND_API_KEY = "re_KxzoQJF6_McJ8fdrfZ5TjPCUK61QmpfpK";
+const FROM_EMAIL = "admin@burgeeregister.org";
 
 // ── Login overlay ─────────────────────────────────────────────
 function showLoginOverlay() {
@@ -865,6 +857,12 @@ function updateNewSlug() {
   document.getElementById("new-image-preview").textContent = slug ? `${slug}${ext}` : "—";
 }
 
+function updateImagePreview() {
+  const slug = document.getElementById("new-slug").value.trim();
+  const ext = document.getElementById("new-img-ext").value;
+  document.getElementById("new-image-preview").textContent = slug ? `${slug}${ext}` : "—";
+}
+
 function updateEditSlug() {
   const idx = parseInt(document.getElementById("edit-index").value);
   const name = document.getElementById("edit-name").value.trim();
@@ -952,14 +950,13 @@ async function addClub() {
     contact_first: document.getElementById("new-contact-first").value.trim(),
     contact_last:  document.getElementById("new-contact-last").value.trim(),
     contact_name:  [document.getElementById("new-contact-first").value.trim(), document.getElementById("new-contact-last").value.trim()].filter(Boolean).join(" "),
-    contact_email: document.getElementById("new-contact-email").textContent.trim(),
+    contact_email: document.getElementById("new-contact-email").value.trim(),
     year_founded:  document.getElementById("new-year-founded").value ? parseInt(document.getElementById("new-year-founded").value) : undefined,
     burgee_local:  slug ? `images/${slug}${ext}` : "",
     date_added:    todayISO(),
     ...newTags,
   });
-  ["new-name","new-year-founded","new-website","new-country","new-city","new-region","new-contact-first","new-contact-last","new-slug"].forEach(id=>document.getElementById(id).value="");
-  document.getElementById("new-contact-email").textContent = "";
+  ["new-name","new-year-founded","new-website","new-country","new-city","new-region","new-contact-first","new-contact-last","new-contact-email","new-slug"].forEach(id=>document.getElementById(id).value="");
   document.getElementById("new-image-preview").textContent="—";
   newTags = {color_primary:'',color_secondary:'',color_tertiary:'',burgee_shape:'',symbols:'',has_border:'no',organization:'',tag_notes:''};
   buildTagPanel("new-tag-panel", newTags, "new");
@@ -972,9 +969,7 @@ async function addClub() {
   try {
     await ghPutFile(addPath, JSON.stringify(newClub, null, 2), null, `Add ${newClub.name}`);
     showMsg("add-msg",`✓ "${name}" added and saved to GitHub!`,"ok");
-    if (newClub.contact_email) {
-      pendingEmails.push({ to: newClub.contact_email, contact_first: newClub.contact_first || "", club_name: newClub.name });
-    }
+    await sendConfirmationEmail(newClub);
   } catch(e) {
     showMsg("add-msg",`✓ Added locally but GitHub failed: ${e.message}`,"err");
   }
@@ -1008,7 +1003,7 @@ function openEdit(idx) {
   document.getElementById("edit-region").value        = c.region||"";
   document.getElementById("edit-contact-first").value = c.contact_first||"";
   document.getElementById("edit-contact-last").value  = c.contact_last||"";
-  document.getElementById("edit-contact-email").textContent = c.contact_email||"";
+  document.getElementById("edit-contact-email").value = c.contact_email||"";
   document.getElementById("edit-year-founded").value  = c.year_founded||"";
   document.getElementById("edit-image").value         = (c.burgee_local||"").replace("images/","");
   document.getElementById("edit-slug").value          = c.slug||"";
@@ -1067,7 +1062,7 @@ async function saveEdit() {
     contact_first: document.getElementById("edit-contact-first").value.trim(),
     contact_last:  document.getElementById("edit-contact-last").value.trim(),
     contact_name:  [document.getElementById("edit-contact-first").value.trim(), document.getElementById("edit-contact-last").value.trim()].filter(Boolean).join(" "),
-    contact_email: document.getElementById("edit-contact-email").textContent.trim(),
+    contact_email: document.getElementById("edit-contact-email").value.trim(),
     year_founded:  document.getElementById("edit-year-founded").value ? parseInt(document.getElementById("edit-year-founded").value) : undefined,
     burgee_local:  imgFile ? `images/${imgFile}` : "",
     ...editTags,
@@ -1155,52 +1150,30 @@ function downloadRenameList() {
   URL.revokeObjectURL(url);
 }
 
-async function importCSV() {
-  let added=0, failed=0;
-  showMsg("csv-msg", `⏳ Importing ${csvRows.length} clubs to GitHub…`, "ok", false);
-
-  for (let i = 0; i < csvRows.length; i++) {
-    const r = csvRows[i];
+function importCSV() {
+  let added=0;
+  csvRows.forEach((r,i)=>{
     const name = r["Club Name"]||r["name"]||"";
-    if (!name) continue;
+    if(!name) return;
     const country = r["Country"]||r["country"]||"";
-    const slug = csvRenameData[i]?.newImg.replace(/\.[^.]+$/,"") || makeSlug(name, country);
+    const slug = csvRenameData[i]?.newImg.replace(/\.[^.]+$/,"") || makeSlug(name,country);
     const newImg = csvRenameData[i]?.newImg||"";
-    const contactFirst = r["Contact First"]||r["contact_first"]||"";
-    const contactLast  = r["Contact Last"]||r["contact_last"]||r["Contact Name"]||r["contact_name"]||"";
-    const newClub = {
+    clubs.push({
       name, slug,
       website:       r["Website"]||r["website"]||"",
       country,
       city:          r["City"]||r["city"]||"",
-      region:        normalizeRegion(r["State / Province / Region"]||r["Region"]||r["region"]||"", country),
-      contact_first: contactFirst,
-      contact_last:  contactLast,
-      contact_name:  [contactFirst, contactLast].filter(Boolean).join(" "),
+      region:        normalizeRegion(r["State / Province / Region"]||r["Region"]||r["region"]||"",country),
+      contact_name:  r["Contact Name"]||r["contact_name"]||"",
       contact_email: r["Contact Email"]||r["contact_email"]||"",
       year_founded:  r["Year Founded"] ? parseInt(r["Year Founded"]) : undefined,
       burgee_local:  newImg ? `images/${newImg}` : "",
       date_added:    todayISO(),
-    };
-    clubs.push(newClub);
-
-    // Push to GitHub
-    try {
-      await ghPutFile(`clubs/${slug}.json`, JSON.stringify(newClub, null, 2), null, `Add ${name}`);
-      added++;
-    } catch(e) {
-      console.warn(`Failed to push ${name}: ${e.message}`);
-      failed++;
-    }
-  }
-
-  updateStats(); renderTable();
-  if (failed === 0) {
-    showMsg("csv-msg", `✓ Imported ${added} clubs to GitHub. Click Deploy when ready.`, "ok");
-  } else {
-    showMsg("csv-msg", `✓ ${added} imported, ⚠ ${failed} failed — check console.`, "err");
-  }
-  setTimeout(() => clearCSV(), 5000);
+    });
+    added++;
+  });
+  clearCSV(); updateStats(); renderTable();
+  showMsg("add-msg",`✓ Imported ${added} clubs from CSV`,"ok");
 }
 
 function clearCSV() {
@@ -1219,8 +1192,7 @@ function todayISO() {
 }
 
 function exportAll() {
-  const now = new Date();
-  const ts = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}-${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}`;
+  const ts = new Date().toISOString().replace("T","_").replace(/:/g,"-").substring(0,16);
   downloadJSON(clubs,"clubs_full.json");
   const pub = clubs.map(c=>{const p={...c};PRIVATE_FIELDS.forEach(f=>delete p[f]);return p;});
   setTimeout(()=>downloadJSON(pub,"clubs.json"),400);
@@ -1236,6 +1208,7 @@ function downloadJSON(data,filename) {
 }
 
 function exportXLSX(ts) {
+  if (!ts) ts = new Date().toISOString().replace("T","_").replace(/:/g,"-").substring(0,16);
   const sorted = [...clubs].sort((a,b)=>(a.name||"").localeCompare(b.name||""));
   const noWebsite  = sorted.filter(c=>!c.website).length;
   const withCity   = sorted.filter(c=>c.city).length;
@@ -1258,7 +1231,7 @@ function exportXLSX(ts) {
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(rows);
-  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:20},{wch:20},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10}];
+  ws["!cols"] = [{wch:5},{wch:40},{wch:18},{wch:22},{wch:20},{wch:14},{wch:24},{wch:30},{wch:35},{wch:36},{wch:36},{wch:14},{wch:14},{wch:14},{wch:14},{wch:40},{wch:10}];
   XLSX.utils.book_append_sheet(wb, ws, "Club Directory");
   XLSX.writeFile(wb, `club_directory_${ts}.xlsx`);
 }
@@ -1273,25 +1246,40 @@ function normalizeRegion(region, country) {
   return REGION_MAP[region.trim().toLowerCase()] || region.trim().toUpperCase();
 }
 
-
-// ── Send Confirmation Email ─────────────────────────────────────────  
 async function sendConfirmationEmail(club) {
-  const email = club.to || club.contact_email;
-  if (!email) return;
+  if (!club.contact_email) return;
+  const greeting = club.contact_first ? `Ahoy ${club.contact_first},` : "Ahoy,";
+  const body = `${greeting}
+
+Thank you for submitting the ${club.name} burgee to the Global Burgee Register.
+
+We are pleased to confirm that your submission has been received and that the Register has been updated. Your club is now part of our growing directory of yacht and sailing clubs from around the world.
+
+We truly appreciate your collaboration in helping us build the most comprehensive burgee registry available. Contributions like yours are what make this resource valuable for the entire sailing community.
+
+If you have any questions or need to make any changes to the listing, please don't hesitate to reach out.
+
+Fair winds,
+
+The Global Burgee Register Team
+https://burgeeregister.org`;
+
   try {
-    const r = await fetch("https://gbr-email.long-violet-0fc5.workers.dev/", {
+    const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
+        "Authorization": `Bearer ${RESEND_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        to: email,
-        contact_first: club.contact_first || "",
-        club_name: club.club_name || club.name || "",
+        from: `Global Burgee Register <${FROM_EMAIL}>`,
+        to: [club.contact_email],
+        subject: "Your Burgee Submission Has Been Accepted — Global Burgee Register",
+        text: body,
       }),
     });
     if (r.ok) {
-      console.log(`✓ Confirmation email sent to ${email}`);
+      console.log(`✓ Confirmation email sent to ${club.contact_email}`);
     } else {
       const err = await r.json();
       console.warn(`Email failed: ${err.message}`);
@@ -1301,7 +1289,6 @@ async function sendConfirmationEmail(club) {
   }
 }
 
-// ── Deploy to Server ─────────────────────────────────────────    
 async function deployToServer() {
   if (!confirm("Deploy all changes to the live server? This will trigger the GitHub Action.")) return;
   showMsg("table-msg", "⏳ Deploying…", "ok", false);
@@ -1314,11 +1301,6 @@ async function deployToServer() {
     });
     if (r.status === 204) {
       showMsg("table-msg", "✓ Deploy triggered — changes will be live in ~1 minute", "ok");
-      // Send confirmation emails for clubs added this session
-      for (const club of pendingEmails) {
-        await sendConfirmationEmail(club);
-      }
-      pendingEmails = [];
     } else {
       const err = await r.json();
       showMsg("table-msg", `⚠ Deploy failed: ${err.message}`, "err");
